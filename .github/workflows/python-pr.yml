@@ -20,11 +20,14 @@ jobs:
     - name: Display Python version
       run: python -V
 
+    - name: Display working directory
+      run: pwd
+
+    - name: List directory contents
+      run: ls -la
+
     - name: Display contents of requirements.txt
       run: cat requirements.txt
-
-    - name: Display pip version
-      run: pip --version
 
     - name: Install dependencies
       run: |
