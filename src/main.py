@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 from ultralytics import YOLO
 
 from src import search_images, train_model
+from src.scrape_similar import scrape_similar_images
+
 
 app = FastAPI()
 
