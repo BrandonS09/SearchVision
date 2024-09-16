@@ -1,42 +1,66 @@
-# .github/workflows/python-pr.yml
-
-name: Python PR Workflow
+name: Enhanced Python PR Workflow
 
 on:
   pull_request:
     branches:
-      - main  # Run the workflow on pull requests targeting the 'main' branch
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, '3.10']
 
     steps:
-    # Step 1: Check out the repository code from the PR
     - name: Check out code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Python environment
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11' # Specify the Python version you want to use
+        python-version: ${{ matrix.python-version }}
 
-    # Step 3: Install dependencies
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Step 4: Check code style with flake8
-    - name: Check code style
+    - name: Check code style with flake8
       run: |
-         pip install flake8
-         flake8 .
+        pip install flake8
+        flake8 .
 
-
-    # Step 5: Run tests
-    - name: Run tests
+    - name: Lint with pylint
       run: |
-        pip install pytest
-        pytest src/tests
+        pip install pylint
+        pylint **/*.py
+
+    - name: Run tests with pytest and check coverage
+      run: |
+        pip install pytest coverage
+        coverage run -m pytest src/tests
+        coverage report
+
+    - name: Run pre-commit hooks
+      uses: pre-commit/action@v3.0.0
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: src/tests  # Adjust this path as needed
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: .coverage  # Adjust this path if your coverage tool outputs to a different location
