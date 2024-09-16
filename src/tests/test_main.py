@@ -5,7 +5,6 @@ from src.main import app
 
 client = TestClient(app)
 
-
 def test_index():
     """Test the index page."""
     response = client.get("/")
