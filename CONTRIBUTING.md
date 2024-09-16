@@ -39,11 +39,22 @@ To request a new feature, please open a [feature request](https://github.com/Bra
 - Potential alternatives or workarounds.
 
 ## Resolving Issues
-When resolving issues, please make sure it has the ```Help Wanted``` label and isn't already taken. To resolve an issue, you need to submit a pull request. To submit a pull request(PR), follow these steps:
+When resolving issues, please make sure it has the ```help wanted``` label and isn't already taken. To resolve an issue, you need to submit a pull request. To submit a pull request(PR), follow these steps:
 1. Fork the repository to your Github account
 2. Create a new branch for your feature or bug fix
-3. Push your changes to your fork
-4. Submit a pull request to the main branch of the original repository. Make sure to include a clear description of your changes and the purpose of the PR.
+```
+git checkout -b feature/your-feature-name
+```
+3. Make your changes in the new branch.
+4. Commit your changes with a clear and descriptive commit message:
+```
+git commit -m "Add: Detailed description of the change"
+```
+6. Push your changes to your fork
+```
+git push origin feature/your-feature-name
+```
+7. Submit a pull request to the ```main``` branch of the original repository. Make sure to include a clear description of your changes and the purpose of the PR.
 
 # Code Guidelines
 To ensure a consistent and high-quality codebase, please follow these guidelines:
