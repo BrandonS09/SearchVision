@@ -11,7 +11,8 @@ Thank you for considering contributing to this project! We welcome contributions
    - [Resolving Issues](#resolving-issues)
 3. [Code Guidelines](#code-guidelines)
 4. [Setting Up the Development Environment](#setting-up-the-development-environment)
-5. [Code of Conduct](#code-of-conduct)
+5. [Constributor License Agreement(CLA)](#Contributor-License-Agreement-(CLA))
+6. [Code of Conduct](#code-of-conduct)
 
 ## Getting Started
 
@@ -82,6 +83,29 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 4. Happy Coding!
+
+# Contributor License Agreement (CLA)
+
+Before we can accept your contributions, you will need to sign a Contributor License Agreement (CLA). This agreement ensures that you are eligible to contribute to this project and that your contributions can be freely used and redistributed under the terms of the AGPL license.
+
+## How to Sign the CLA
+
+1. **Read the CLA**: You can find the Contributor License Agreement [here](LINK_TO_CLA_DOCUMENT). Please read it carefully to understand the terms.
+2. **Sign the CLA**: To sign the CLA, you can:
+   - **Electronically Sign**: Complete the electronic signature process [here](LINK_TO_ELECTRONIC_SIGNATURE_FORM).
+   - **Email a Signed Copy**: Download the CLA, sign it, and send it via email to [your-email@example.com](mailto:your-email@example.com).
+
+## Why Do We Need a CLA?
+
+The CLA helps us ensure that the intellectual property rights for the contributions are clearly defined, allowing us to maintain the project under the AGPL license. This protects both you as a contributor and us as the project maintainers.
+
+## Important Notes
+
+- You need to sign the CLA only once; after that, you can contribute as much as you want without re-signing.
+- If you are contributing on behalf of your employer, make sure they are aware of and approve of your contributions under the terms of the CLA and AGPL license.
+
+Thank you for your understanding and cooperation!
+
 
 # Code of Conduct
 We follow the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Please read it to understand what actions will and will not be tolerated.
