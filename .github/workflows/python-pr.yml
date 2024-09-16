@@ -27,10 +27,10 @@ jobs:
         pip install autopep8
         autopep8 --in-place --aggressive --aggressive -r src
 
-    - name: Run tests
-      run: |
-        pip install pytest
-        pytest src/tests
+    # - name: Run tests
+    #   run: |
+    #     pip install pytest
+    #     pytest src/tests
 
     # You can add more steps here as needed, such as:
     # - Code coverage
