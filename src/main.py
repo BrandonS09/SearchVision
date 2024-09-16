@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -5,14 +6,16 @@ import requests
 from bs4 import BeautifulSoup
 from ultralytics import YOLO
 
-from src import search_images, train_model
+from src.search_images import search_images
+from src.train_model import train_model
 from src.scrape_similar import scrape_similar_images
 
 
 app = FastAPI()
 
 # Serve static files (like images) from the "static" directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+static_path = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 # Route to handle the main form
 @app.get("/", response_class=HTMLResponse)
