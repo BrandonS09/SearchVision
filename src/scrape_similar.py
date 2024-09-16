@@ -1,7 +1,5 @@
 # Function to scrape similar images based on selected images
 from src import search_images
-
-
 def scrape_similar_images(selected_image_urls, api_key, search_engine_id):
     similar_images = []
     for url in selected_image_urls:
