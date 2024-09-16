@@ -2,9 +2,6 @@ import os
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-import requests
-from bs4 import BeautifulSoup
-from ultralytics import YOLO
 
 from src.search_images import search_images
 from src.train_model import train_model

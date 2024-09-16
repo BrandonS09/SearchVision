@@ -1,7 +1,4 @@
 # Function to scrape similar images based on selected images
-from bs4 import BeautifulSoup
-import requests
-
 from src import search_images
 
 def scrape_similar_images(selected_image_urls, api_key, search_engine_id):
