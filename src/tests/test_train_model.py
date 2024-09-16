@@ -1,10 +1,11 @@
 # src/tests/test_train_model.py
-
 from src.train_model import train_model
+
 
 def test_train_model():
     """Test the train_model function with a sample input."""
-    image_paths = ["http://example.com/image1.jpg", "http://example.com/image2.jpg"]
+    image_paths = ["http://example.com/image1.jpg",
+                   "http://example.com/image2.jpg"]
     annotations = []
 
     try:
