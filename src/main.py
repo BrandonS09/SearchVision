@@ -19,12 +19,15 @@ logger = logging.getLogger(__name__)
 try:
     static_path = os.path.join(os.path.dirname(__file__), "static")
     if not os.path.exists(static_path):
-        raise FileNotFoundError(f"Static directory '{static_path}' does not exist.")
+        raise FileNotFoundError(
+            f"Static directory '{static_path}' does not exist.")
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 except Exception as e:
     logger.error(f"Error setting up static files: {e}")
 
 # Route to handle the main form
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     try:
@@ -44,6 +47,8 @@ async def index():
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # Route to handle the search and display images
+
+
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     try:
@@ -64,6 +69,8 @@ async def search(query: str = Form(...)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # Route to handle selected images and scrape for similar images
+
+
 @app.post("/select", response_class=HTMLResponse)
 async def select(selected_images: list[str] = Form(...)):
     try:
@@ -71,12 +78,13 @@ async def select(selected_images: list[str] = Form(...)):
             raise HTTPException(status_code=400, detail="No images selected.")
 
         similar_images = scrape_similar_images(selected_images)
-        
+
         if not similar_images:
             return HTMLResponse("<html><body><h2>No similar images found.</h2></body></html>", status_code=404)
 
         # Here, you'd train your YOLO model with the selected images
-        train_model(similar_images, annotations=[])  # Add appropriate annotations
+        # Add appropriate annotations
+        train_model(similar_images, annotations=[])
 
         return "<html><body><h2>Model Training Complete</h2></body></html>"
     except HTTPException as he:

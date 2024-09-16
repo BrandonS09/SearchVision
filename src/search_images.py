@@ -1,6 +1,9 @@
 import requests
 # Function to search for images using Google Custom Search API
+
+
 def search_images(query, api_key, search_engine_id, num_results=5):
+
     search_url = "https://www.googleapis.com/customsearch/v1"
     params = {
         'q': query,
