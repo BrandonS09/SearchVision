@@ -6,7 +6,8 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [Getting Started](#getting-started)
+<!-- -[Getting Started](#getting-started) 
+ !-->
 - [Usage](#usage)
 - [Technology Stack](#technology-stack)
 - [Contributing](#contributing)
@@ -24,11 +25,12 @@ SearchVision is designed to provide a seamless experience for users to perform i
 - **Model Training**: Train a YOLOv8 object detection model using the selected and scraped images.
 - **Error Handling**: Provides meaningful error messages and logging for smooth user experience.
 
-## Getting Started
+<!-- ## Getting Started
 
-To start using SearchVision, visit the deployed web application at:
+ To start using SearchVision, visit the deployed web application at:
 
-**[https://your-deployed-domain.com](https://your-deployed-domain.com)**
+ **[https://your-deployed-domain.com](https://your-deployed-domain.com)**
+ !-->
 
 ## Usage
 
