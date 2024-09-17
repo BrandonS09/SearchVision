@@ -6,8 +6,6 @@
 
 - [Overview](#overview)
 - [Features](#features)
-<!-- -[Getting Started](#getting-started) 
- !-->
 - [Usage](#usage)
 - [Technology Stack](#technology-stack)
 - [Contributing](#contributing)
