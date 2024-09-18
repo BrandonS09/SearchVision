@@ -86,7 +86,12 @@ pip install -r requirements.txt
 ```
 uvicorn src.main:app --reload
 ```
-5. Happy Coding!
+5. Add your own credentials in a ```.env``` file:
+```
+GOOGLE_API_KEY=YOUR_API_KEY_HERE
+SEARCH_ENGINE_ID=SEARCH_ENGINE_ID_HERE
+```
+6. Happy Coding!
 
 ## Contributor License Agreement (CLA)
 
