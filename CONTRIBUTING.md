@@ -82,7 +82,11 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 ```
 pip install -r requirements.txt
 ```
-4. Happy Coding!
+4. Run test server:
+```
+uvicorn src.main:app --reload
+```
+5. Happy Coding!
 
 ## Contributor License Agreement (CLA)
 
