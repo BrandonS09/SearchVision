@@ -1,12 +1,11 @@
 # SearchVision
 
-**SearchVision** is a web application built with FastAPI that allows users to search for images, select relevant images, and use web scraping techniques to find similar images. The selected images are then used to train a YOLOv8 (You Only Look Once) model for object detection.
+**SearchVision** ***(WORK IN PROGRESS)*** is a web application built with FastAPI that allows users to search for images, select relevant images, and use web scraping techniques to find similar images. The selected images are then used to train a YOLOv8 (You Only Look Once) model for object detection.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Technology Stack](#technology-stack)
 - [Contributing](#contributing)
@@ -24,11 +23,12 @@ SearchVision is designed to provide a seamless experience for users to perform i
 - **Model Training**: Train a YOLOv8 object detection model using the selected and scraped images.
 - **Error Handling**: Provides meaningful error messages and logging for smooth user experience.
 
-## Getting Started
+<!-- ## Getting Started
 
-To start using SearchVision, visit the deployed web application at:
+ To start using SearchVision, visit the deployed web application at:
 
-**[https://your-deployed-domain.com](https://your-deployed-domain.com)**
+ **[https://your-deployed-domain.com](https://your-deployed-domain.com)**
+ !-->
 
 ## Usage
 
@@ -52,7 +52,7 @@ We welcome contributions! If you're interested in contributing to SearchVision, 
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -65,6 +65,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ### Contact
 
-If you have any questions or feedback, please open an issue on the repository or contact us at [your-email@example.com](mailto:your-email@example.com).
+If you have any questions or feedback, please open an issue on the repository or contact us at [brandonshen123@gmail.com](mailto:brandonshen123@gmail.com).
 
 Thank you for using SearchVision! We hope you enjoy using the app.

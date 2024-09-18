@@ -2,6 +2,7 @@
 
 from src.scrape_similar import scrape_similar_images
 
+
 def test_scrape_similar_images():
     """Test scrape_similar_images with a sample image URL."""
     selected_image_urls = ["http://example.com/image1.jpg"]
