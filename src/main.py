@@ -3,11 +3,16 @@ from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import logging
+from dotenv import load_dotenv
 
+from src import auto_annotate_images
+from src.download_images import download_images
 from src.search_images import search_images
+from src.search_most_dissimilar_images import select_most_dissimilar_images
 from src.train_model import train_model
 from src.scrape_similar import scrape_similar_images
 
+load_dotenv()
 # Initialize the FastAPI app
 app = FastAPI()
 
@@ -52,41 +57,61 @@ async def index():
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     try:
-        api_key = "YOUR_API_KEY"
-        search_engine_id = "YOUR_SEARCH_ENGINE_ID"
+        api_key = os.getenv("GOOGLE_API_KEY")
+        search_engine_id = os.getenv("SEARCH_ENGINE_ID")
         images = search_images(query, api_key, search_engine_id)
 
-        if not images:
-            return HTMLResponse("<html><body><h2>No images found for the query.</h2></body></html>", status_code=404)
+        # Filter the 9 most dissimilar images
+        selected_images = select_most_dissimilar_images(images, 9)
 
-        html_content = f"<html><body><h2>Results for: {query}</h2><form action='/select' method='post'>"
-        for image_url in images:
+        # Display the images to the user for annotation
+        html_content = f"<html><body><h2>Select the images that contain the object: {query}</h2><form action='/select' method='post'>"
+        for image_url in selected_images:
             html_content += f"<img src='{image_url}' width='200'><input type='checkbox' name='selected_images' value='{image_url}'><br>"
-        html_content += "<button type='submit'>Select Images</button></form></body></html>"
+        html_content += "<button type='submit'>Annotate Selected Images</button></form></body></html>"
         return html_content
     except Exception as e:
         logger.error(f"Error during image search: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 # Route to handle selected images and scrape for similar images
-
-
 @app.post("/select", response_class=HTMLResponse)
 async def select(selected_images: list[str] = Form(...)):
     try:
         if not selected_images:
             raise HTTPException(status_code=400, detail="No images selected.")
 
-        similar_images = scrape_similar_images(selected_images)
+        # Fetch the API key and Search Engine ID from environment variables
+        api_key = os.getenv("GOOGLE_API_KEY")
+        search_engine_id = os.getenv("SEARCH_ENGINE_ID")
 
-        if not similar_images:
-            return HTMLResponse("<html><body><h2>No similar images found.</h2></body></html>", status_code=404)
+        # Ensure the required environment variables are available
+        if not api_key or not search_engine_id:
+            logger.error("Missing API key or Search Engine ID")
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
-        # Here, you'd train your YOLO model with the selected images
-        # Add appropriate annotations
-        train_model(similar_images, annotations=[])
+        # Step 1: Download the selected images
+        download_path = "dataset/train/images"
+        download_images(selected_images, download_path)
 
-        return "<html><body><h2>Model Training Complete</h2></body></html>"
+        # Step 2: Allow the user to annotate the selected images
+        # Here, you might want to display a simple image annotation tool or guide the user to annotate manually
+        annotations_path = "dataset/train/labels"
+        # Assuming user-annotated images are already saved at `annotations_path`
+
+        # Step 3: Fetch similar images based on user-selected images
+        similar_images = scrape_similar_images(selected_images, api_key, search_engine_id)
+        download_images(similar_images, download_path)
+
+        # Step 4: Automatically annotate the newly fetched images using a pre-trained YOLO model
+        auto_annotate_images(download_path, annotations_path)
+
+        # Step 5: Train the YOLO model with the annotated dataset
+        data_yaml_path = "dataset/data.yaml"
+        train_model(data_yaml_path)
+
+        return "<html><body><h2>Model Training Complete. Your YOLOv8 model is ready!</h2></body></html>"
     except HTTPException as he:
         logger.error(f"HTTP error during image selection: {he}")
         raise he

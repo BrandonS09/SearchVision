@@ -1,18 +1,34 @@
 import requests
-# Function to search for images using Google Custom Search API
 
+def search_images(query, api_key, search_engine_id):
+    """
+    Searches for images based on the query using Google Custom Search JSON API.
 
-def search_images(query, api_key, search_engine_id, num_results=5):
+    :param query: Search query.
+    :param api_key: Google API key.
+    :param search_engine_id: Custom Search Engine ID.
+    :return: List of image URLs.
+    """
+    # Construct the search URL
+    search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={api_key}&cx={search_engine_id}&searchType=image"
 
-    search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        'q': query,
-        'cx': search_engine_id,
-        'key': api_key,
-        'searchType': 'image',
-        'num': num_results
-    }
-    response = requests.get(search_url, params=params)
-    results = response.json()
-    image_urls = [item['link'] for item in results.get('items', [])]
-    return image_urls
+    try:
+        response = requests.get(search_url)
+        if response.status_code == 200:
+            data = response.json()
+            # Log the full response to debug
+            print("Search response data:", data)
+
+            # Extract image URLs from search results
+            image_urls = [item["link"] for item in data.get("items", [])]
+
+            # Log extracted image URLs
+            print("Extracted image URLs:", image_urls)
+            
+            return image_urls
+        else:
+            print(f"Failed to fetch images: Status code {response.status_code}, Response: {response.text}")
+            return []
+    except Exception as e:
+        print(f"Error during image search: {e}")
+        return []
