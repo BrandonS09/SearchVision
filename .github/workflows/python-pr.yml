@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v3
+      with:
+        ref: dev  # Ensure we're checking out the dev branch
       
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
@@ -28,11 +30,15 @@ jobs:
       
     - name: Run autopep8
       run: autopep8 --in-place --aggressive --aggressive -r src
-      
-    - name: Commit changes
+
+    - name: Pull remote changes from dev
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git pull origin dev
+      
+    - name: Commit changes
+      run: |
         git add -A
         git diff-index --quiet HEAD || git commit -m "Apply autopep8 formatting"
       
@@ -40,4 +46,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GH_TOKEN }}
-        branch: ${{ github.head_ref }}
+        branch: dev
