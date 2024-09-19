@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 
+
 def train_model(data_yaml_path):
     """
     Trains the YOLOv8 model using the annotated dataset.

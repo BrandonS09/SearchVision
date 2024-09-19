@@ -3,6 +3,7 @@
 import requests
 import os
 
+
 def download_images(image_urls, download_path="dataset/train/images"):
     """
     Downloads images from a list of URLs and saves them to the specified directory.

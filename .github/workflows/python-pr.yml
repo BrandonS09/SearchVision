@@ -5,35 +5,45 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write  # Grant write access to the repository
+
 jobs:
-  build:
+  autopep8:
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v3
-
+      with:
+        ref: dev  # Ensure we're checking out the dev branch
+      
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-
+      
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Run autopep8
-      run: |
         pip install autopep8
-        autopep8 --in-place --aggressive --aggressive -r src
+      
+    - name: Run autopep8
+      run: autopep8 --in-place --aggressive --aggressive -r src
 
-    # - name: Run tests
-    #   run: |
-    #     pip install pytest
-    #     pytest src/tests
-
-    # You can add more steps here as needed, such as:
-    # - Code coverage
-    # - Additional linting
-    # - Building documentation
-    # - Any other checks or processes specific to your project
+    - name: Pull remote changes from dev
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git pull origin dev
+      
+    - name: Commit changes
+      run: |
+        git add -A
+        git diff-index --quiet HEAD || git commit -m "Apply autopep8 formatting"
+      
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+        branch: dev
