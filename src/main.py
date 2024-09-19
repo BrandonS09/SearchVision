@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 import logging
 from dotenv import load_dotenv
 
-from src import auto_annotate_images
+from src.auto_annotate_images import auto_annotate_images
 from src.download_images import download_images
 from src.search_images import search_images
 from src.search_most_dissimilar_images import select_most_dissimilar_images
