@@ -28,6 +28,7 @@ os.makedirs(download_path, exist_ok=True)
 # Serve static files (like images) from the "dataset/train/images" directory
 app.mount("/images", StaticFiles(directory=download_path), name="images")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     try:
@@ -45,6 +46,7 @@ async def index():
     except Exception as e:
         logger.error(f"Error generating the index page: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
@@ -66,16 +68,18 @@ async def search(query: str = Form(...)):
         logger.error(f"Error during image search: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @app.post("/select", response_class=HTMLResponse)
 async def select(selected_images: list[str] = Form(...)):
     try:
         if not selected_images:
             raise HTTPException(status_code=400, detail="No images selected.")
-        
+
         # Step 1: Download the selected images and store their local paths
         local_image_paths = download_images(selected_images, download_path)
 
-        # Step 2: Display the locally downloaded images for annotation using pure HTML5 Canvas
+        # Step 2: Display the locally downloaded images for annotation using
+        # pure HTML5 Canvas
         html_content = """
         <html>
         <head>
@@ -93,7 +97,8 @@ async def select(selected_images: list[str] = Form(...)):
             image_filename = os.path.basename(local_image_path)
             served_image_path = f"/images/{image_filename}"
 
-            # Ensure each canvas and variable is uniquely named to avoid conflict
+            # Ensure each canvas and variable is uniquely named to avoid
+            # conflict
             html_content += f"""
             <div>
                 <h3>Image {idx + 1}</h3>
@@ -168,16 +173,22 @@ async def select(selected_images: list[str] = Form(...)):
         logger.error(f"Error during image selection: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @app.post("/save_annotations", response_class=HTMLResponse)
-async def save_annotations(image_urls: list[str] = Form(...), annotations: list[str] = Form(...)):
+async def save_annotations(
+        image_urls: list[str] = Form(...),
+        annotations: list[str] = Form(...)):
     try:
-        # Step 1: Save the annotations as JSON containing bounding box coordinates
+        # Step 1: Save the annotations as JSON containing bounding box
+        # coordinates
         annotations_path = "dataset/train/labels"
         os.makedirs(annotations_path, exist_ok=True)
 
         for image_url, annotation in zip(image_urls, annotations):
             image_name = os.path.basename(image_url)
-            annotation_file = os.path.join(annotations_path, image_name.replace('.jpg', '.json'))
+            annotation_file = os.path.join(
+                annotations_path, image_name.replace(
+                    '.jpg', '.json'))
 
             with open(annotation_file, 'w') as f:
                 f.write(annotation)
@@ -185,12 +196,14 @@ async def save_annotations(image_urls: list[str] = Form(...), annotations: list[
         # Step 2: After saving annotations, proceed to scrape similar images
         api_key = os.getenv("GOOGLE_API_KEY")
         search_engine_id = os.getenv("SEARCH_ENGINE_ID")
-        similar_images = scrape_similar_images(image_urls, api_key, search_engine_id)
-        
+        similar_images = scrape_similar_images(
+            image_urls, api_key, search_engine_id)
+
         # Step 3: Download similar images
         download_images(similar_images, "dataset/train/images")
 
-        # Step 4: Automatically annotate the newly fetched images using a pre-trained YOLO model
+        # Step 4: Automatically annotate the newly fetched images using a
+        # pre-trained YOLO model
         auto_annotate_images("dataset/train/images", annotations_path)
 
         # Step 5: Train the YOLO model with the annotated dataset

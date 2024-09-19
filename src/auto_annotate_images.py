@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import os
 
+
 def auto_annotate_images(image_dir, output_dir):
     """
     Automatically annotates images using a pre-trained YOLOv8 model.
@@ -26,7 +27,11 @@ def auto_annotate_images(image_dir, output_dir):
             for result in results:
                 for box in result.boxes.data:
                     class_id = int(box[5])  # Class index
-                    x_center, y_center, width, height = box[0:4].tolist()  # Box coordinates
-                    # Write in YOLO format: <class_id> <x_center> <y_center> <width> <height>
-                    f.write(f"{class_id} {x_center} {y_center} {width} {height}\n")
-                print(f"Annotated {image_file} with {len(result.boxes)} objects")
+                    # Box coordinates
+                    x_center, y_center, width, height = box[0:4].tolist()
+                    # Write in YOLO format: <class_id> <x_center> <y_center>
+                    # <width> <height>
+                    f.write(
+                        f"{class_id} {x_center} {y_center} {width} {height}\n")
+                print(
+                    f"Annotated {image_file} with {len(result.boxes)} objects")

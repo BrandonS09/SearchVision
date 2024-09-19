@@ -1,5 +1,6 @@
 import requests
 
+
 def search_images(query, api_key, search_engine_id):
     """
     Searches for images based on the query using Google Custom Search JSON API.
@@ -24,10 +25,11 @@ def search_images(query, api_key, search_engine_id):
 
             # Log extracted image URLs
             print("Extracted image URLs:", image_urls)
-            
+
             return image_urls
         else:
-            print(f"Failed to fetch images: Status code {response.status_code}, Response: {response.text}")
+            print(
+                f"Failed to fetch images: Status code {response.status_code}, Response: {response.text}")
             return []
     except Exception as e:
         print(f"Error during image search: {e}")
