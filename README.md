@@ -60,13 +60,6 @@ This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) 
 
 ---
 
-### Acknowledgements
-
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [YOLOv8](https://github.com/ultralytics/ultralytics)
-- [Google Custom Search API](https://developers.google.com/custom-search/v1/overview)
-- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
-
 ### Contact
 
 If you have any questions or feedback, please open an issue on the repository or contact us at [brandonshen123@gmail.com](mailto:brandonshen123@gmail.com).
