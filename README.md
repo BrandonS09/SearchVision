@@ -45,6 +45,10 @@ SearchVision is designed to provide a seamless experience for users to perform i
 - **Google Custom Search API**: Provides image search capabilities.
 - **BeautifulSoup**: A Python library for web scraping purposes.
 - **Uvicorn**: A lightning-fast ASGI server for FastAPI.
+- **Pillow (PIL)**: For handling image manipulation tasks like loading, saving, and processing images.
+- **JavaScript**: Used for handling user interactions and drawing annotations on images.
+- **Scikit-learn**: For calculating dissimilarities between images using cosine distance.
+- **Python-dotenv**: For loading environment variables from a .env file, such as API keys.
 
 ## Contributing
 
