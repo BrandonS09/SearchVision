@@ -99,7 +99,7 @@ Before we can accept your contributions, you will need to sign a Contributor Lic
 
 ### How to Sign the CLA
 
-1. **Read and Sign CLA**: You can find the Contributor License Agreement [here]([LINK_TO_CLA_DOCUMENT](https://cla-assistant.io/BrandonS09/SearchVision)). Please read it carefully to understand the terms.
+1. **Read and Sign CLA**: You can find the Contributor License Agreement [here](https://cla-assistant.io/BrandonS09/SearchVision). Please read it carefully to understand the terms.
 
 ### Why Do We Need a CLA?
 
