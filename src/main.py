@@ -184,7 +184,7 @@ async def select(selected_images: list[str] = Form(...), original_query: str = F
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/save_annotations", response_class=HTMLResponse)
-async def save_annotations(image_urls: list[str] = Form(...), annotations: list[str] = Form(...)):
+async def save_annotations(image_urls: list[str] = Form(...), annotations: list[str] = Form(...), original_query: str = Form(...)):
     try:
         # Step 1: Save the annotations as JSON containing bounding box coordinates
         annotations_path = "dataset/train/labels"
@@ -204,7 +204,7 @@ async def save_annotations(image_urls: list[str] = Form(...), annotations: list[
         search_engine_id = os.getenv("SEARCH_ENGINE_ID")
         
         logger.info("Starting to scrape similar images")
-        similar_images = scrape_similar_images(image_urls, api_key, search_engine_id, num_results_per_image=20, total_images_to_download=50)
+        similar_images = scrape_similar_images(image_urls,original_query, api_key, search_engine_id, num_results_per_image=20, total_images_to_download=50)
         logger.info(f"Scraped similar images: {similar_images}")
 
         # Step 3: Download similar images
