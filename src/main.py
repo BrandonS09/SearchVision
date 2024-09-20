@@ -23,8 +23,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_file_path), 
-        logging.StreamHandler() 
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
@@ -67,9 +67,11 @@ async def search(query: str = Form(...)):
         # Filter the 9 most dissimilar images
         selected_images = select_most_dissimilar_images(images, 9)
 
-        # Display the images to the user for selection and pass `original_query`
+        # Display the images to the user for selection and pass
+        # `original_query`
         html_content = f"<html><body><h2>Select the images that contain the object: {query}</h2><form action='/select' method='post'>"
-        html_content += f"<input type='hidden' name='original_query' value='{original_query}'>"  # Pass original query
+        # Pass original query
+        html_content += f"<input type='hidden' name='original_query' value='{original_query}'>"
         for image_url in selected_images:
             html_content += f"<img src='{image_url}' width='200'><input type='checkbox' name='selected_images' value='{image_url}'><br>"
         html_content += "<button type='submit'>Annotate Selected Images</button></form></body></html>"
@@ -80,7 +82,9 @@ async def search(query: str = Form(...)):
 
 
 @app.post("/select", response_class=HTMLResponse)
-async def select(selected_images: list[str] = Form(...), original_query: str = Form(...)):
+async def select(
+        selected_images: list[str] = Form(...),
+        original_query: str = Form(...)):
     try:
         if not selected_images:
             raise HTTPException(status_code=400, detail="No images selected.")
@@ -108,7 +112,8 @@ async def select(selected_images: list[str] = Form(...), original_query: str = F
             image_filename = os.path.basename(local_image_path)
             served_image_path = f"/images/{image_filename}"
 
-            # Ensure each canvas and variable is uniquely named to avoid conflict
+            # Ensure each canvas and variable is uniquely named to avoid
+            # conflict
             html_content += f"""
             <div>
                 <h3>Image {idx + 1}</h3>
@@ -183,28 +188,40 @@ async def select(selected_images: list[str] = Form(...), original_query: str = F
         logger.error(f"Error during image selection: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @app.post("/save_annotations", response_class=HTMLResponse)
-async def save_annotations(image_urls: list[str] = Form(...), annotations: list[str] = Form(...)):
+async def save_annotations(
+        image_urls: list[str] = Form(...),
+        annotations: list[str] = Form(...)):
     try:
-        # Step 1: Save the annotations as JSON containing bounding box coordinates
+        # Step 1: Save the annotations as JSON containing bounding box
+        # coordinates
         annotations_path = "dataset/train/labels"
         os.makedirs(annotations_path, exist_ok=True)
 
         for image_url, annotation in zip(image_urls, annotations):
             image_name = os.path.basename(image_url)
-            annotation_file = os.path.join(annotations_path, image_name.replace('.jpg', '.json'))
+            annotation_file = os.path.join(
+                annotations_path, image_name.replace(
+                    '.jpg', '.json'))
 
             with open(annotation_file, 'w') as f:
                 f.write(annotation)
 
         logger.info("Annotations saved, proceeding to scrape similar images")
 
-        # Step 2: Scrape similar images (increase total_images_to_download here)
+        # Step 2: Scrape similar images (increase total_images_to_download
+        # here)
         api_key = os.getenv("GOOGLE_API_KEY")
         search_engine_id = os.getenv("SEARCH_ENGINE_ID")
-        
+
         logger.info("Starting to scrape similar images")
-        similar_images = scrape_similar_images(image_urls, api_key, search_engine_id, num_results_per_image=20, total_images_to_download=50)
+        similar_images = scrape_similar_images(
+            image_urls,
+            api_key,
+            search_engine_id,
+            num_results_per_image=20,
+            total_images_to_download=50)
         logger.info(f"Scraped similar images: {similar_images}")
 
         # Step 3: Download similar images
@@ -228,4 +245,3 @@ async def save_annotations(image_urls: list[str] = Form(...), annotations: list[
     except Exception as e:
         logger.error(f"Error during annotation or model training: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
