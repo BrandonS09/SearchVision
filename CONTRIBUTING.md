@@ -70,7 +70,7 @@ To ensure a consistent and high-quality codebase, please follow these guidelines
 To set up the development environment, follow these steps:
 1. Clone the repository
 ```
-git clone https://github.com/YOUR_USERNAME/PROJECT_NAME.git
+git clone -b dev https://github.com/BrandonS09/SearchVision.git
 cd PROJECT_NAME
 ```
 2. Create a virtual environment and activate it:
@@ -99,10 +99,7 @@ Before we can accept your contributions, you will need to sign a Contributor Lic
 
 ### How to Sign the CLA
 
-1. **Read the CLA**: You can find the Contributor License Agreement [here](LINK_TO_CLA_DOCUMENT). Please read it carefully to understand the terms.
-2. **Sign the CLA**: To sign the CLA, you can:
-   - **Electronically Sign**: Complete the electronic signature process [here](LINK_TO_ELECTRONIC_SIGNATURE_FORM).
-   - **Email a Signed Copy**: Download the CLA, sign it, and send it via email to [your-email@example.com](mailto:your-email@example.com).
+1. **Read and Sign CLA**: You can find the Contributor License Agreement [here](https://cla-assistant.io/BrandonS09/SearchVision). Please read it carefully to understand the terms.
 
 ### Why Do We Need a CLA?
 
@@ -117,7 +114,7 @@ Thank you for your understanding and cooperation!
 
 
 ## Code of Conduct
-We follow the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Please read it to understand what actions will and will not be tolerated.
+We follow the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). Please read it to understand what actions will and will not be tolerated.
 
 By contributing to this project, you agree to abide by its terms.
 
