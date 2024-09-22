@@ -1,36 +1,35 @@
+# main.py
+
 import os
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 from dotenv import load_dotenv
+import shutil
+import subprocess
 
-from src.auto_annotate_images import auto_annotate_images
-from src.download_images import download_images
 from src.search_images import search_images
 from src.search_most_dissimilar_images import select_most_dissimilar_images
+from src.download_images import download_images
+from src.create_label_map import create_label_map
+from src.create_tfrecord import create_tfrecord, load_label_map_dict
 from src.train_model import train_model
-from src.scrape_similar import scrape_similar_images
-# Import your create_data_yaml function
-from src.create_data_yaml import create_data_yaml
-import shutil
+from src.convert_to_tflite import convert_to_tflite
+from src.auto_annotate_images import auto_annotate_images
 
 # Paths to the directories
 images_path = "dataset/train/images"
-labels_path = "dataset/train/labels"
+annotations_path = "dataset/train/annotations"
 
 # Clear the directories on startup
-
-
 def clear_directory(path):
     if os.path.exists(path):
-        shutil.rmtree(path)  # Remove the directory and its contents
-    os.makedirs(path)  # Recreate the directory
+        shutil.rmtree(path)
+    os.makedirs(path)
 
-
-# Clear the images and labels directories
 clear_directory(images_path)
-clear_directory(labels_path)
+clear_directory(annotations_path)
 
 load_dotenv()
 
@@ -50,12 +49,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Path for saving and serving static images
-download_path = "dataset/train/images"
+download_path = images_path
 os.makedirs(download_path, exist_ok=True)
 
 # Serve static files (like images) from the "dataset/train/images" directory
 app.mount("/images", StaticFiles(directory=download_path), name="images")
-
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
@@ -75,45 +73,40 @@ async def index():
         logger.error(f"Error generating the index page: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     try:
         api_key = os.getenv("GOOGLE_API_KEY")
         search_engine_id = os.getenv("SEARCH_ENGINE_ID")
-        original_query = query  # Store original query
+        original_query = query
         images = search_images(query, api_key, search_engine_id)
 
         # Filter the 9 most dissimilar images
         selected_images = select_most_dissimilar_images(images, 9)
 
-        # Display the images to the user for selection and pass
-        # `original_query`
-        html_content = f"<html><body><h2>Select the images that contain the object: {query}</h2><form action='/select' method='post'>"
-        # Pass original query
+        # Display the images to the user for selection
+        html_content = f"<html><body><h2>Select the images that contain the object: {query}</h2><form action='/annotate' method='post'>"
         html_content += f"<input type='hidden' name='original_query' value='{original_query}'>"
         for image_url in selected_images:
-            html_content += f"<img src='{image_url}' width='200'><input type='checkbox' name='selected_images' value='{image_url}'><br>"
-        html_content += "<button type='submit'>Annotate Selected Images</button></form></body></html>"
+            html_content += f"<div><img src='{image_url}' width='200'><br><input type='checkbox' name='selected_images' value='{image_url}'></div>"
+        html_content += "<button type='submit'>Proceed to Annotation</button></form></body></html>"
         return html_content
     except Exception as e:
         logger.error(f"Error during image search: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-
-@app.post("/select", response_class=HTMLResponse)
-async def select(
+@app.post("/annotate", response_class=HTMLResponse)
+async def annotate(
         selected_images: list[str] = Form(...),
         original_query: str = Form(...)):
     try:
         if not selected_images:
             raise HTTPException(status_code=400, detail="No images selected.")
 
-        # Step 1: Download the selected images and store their local paths
+        # Download the selected images
         local_image_paths = download_images(selected_images, download_path)
 
-        # Step 2: Display the locally downloaded images for annotation using
-        # pure HTML5 Canvas
+        # Display images for manual annotation
         html_content = f"""
         <html>
         <head>
@@ -126,19 +119,18 @@ async def select(
         <body>
             <h2>Annotate the selected images</h2>
             <form action='/save_annotations' method='post'>
-            <input type='hidden' name='original_query' value='{original_query}'>  <!-- Keep passing original_query -->
+            <input type='hidden' name='original_query' value='{original_query}'>
         """
         for idx, local_image_path in enumerate(local_image_paths):
             image_filename = os.path.basename(local_image_path)
             served_image_path = f"/images/{image_filename}"
 
-            # Ensure each canvas and variable is uniquely named to avoid
-            # conflict
+            # Ensure each canvas and variable is uniquely named
             html_content += f"""
             <div>
                 <h3>Image {idx + 1}</h3>
                 <canvas id="canvas_{idx}" width="500" height="400"></canvas>
-                <input type="hidden" name="image_urls" value="{served_image_path}">
+                <input type="hidden" name="image_names" value="{image_filename}">
                 <input type="hidden" id="annotation_{idx}" name="annotations">
                 <br><br>
             </div>
@@ -187,10 +179,10 @@ async def select(
 
                     // Save the rectangle coordinates as the annotation
                     document.getElementById('annotation_{idx}').value = JSON.stringify({{
-                        x: startX_{idx},
-                        y: startY_{idx},
-                        width: endX_{idx} - startX_{idx},
-                        height: endY_{idx} - startY_{idx}
+                        x: startX_{idx} / canvas_{idx}.width,
+                        y: startY_{idx} / canvas_{idx}.height,
+                        width: (endX_{idx} - startX_{idx}) / canvas_{idx}.width,
+                        height: (endY_{idx} - startY_{idx}) / canvas_{idx}.height
                     }});
                 }});
             </script>
@@ -202,70 +194,88 @@ async def select(
         </body>
         </html>
         """
-        return html_content
-
+        return HTMLResponse(content=html_content)
     except Exception as e:
-        logger.error(f"Error during image selection: {e}")
+        logger.error(f"Error during annotation: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
 
 @app.post("/save_annotations", response_class=HTMLResponse)
 async def save_annotations(
-        image_urls: list[str] = Form(...),
+        request: Request,
+        image_names: list[str] = Form(...),
         annotations: list[str] = Form(...),
         original_query: str = Form(...)):
     try:
-        # Save the annotations as JSON containing bounding box coordinates
-        annotations_path = "dataset/train/labels"
-        os.makedirs(annotations_path, exist_ok=True)
+        # Save the annotations
+        for image_name, annotation in zip(image_names, annotations):
+            annotation_data = json.loads(annotation)
+            # Convert normalized coordinates to absolute values
+            image_path = os.path.join(images_path, image_name)
+            with Image.open(image_path) as img:
+                width, height = img.size
+            x_min = annotation_data['x'] * width
+            y_min = annotation_data['y'] * height
+            x_max = x_min + (annotation_data['width'] * width)
+            y_max = y_min + (annotation_data['height'] * height)
 
-        for image_url, annotation in zip(image_urls, annotations):
-            image_name = os.path.basename(image_url)
-            annotation_file = os.path.join(
-                annotations_path, image_name.replace(
-                    '.jpg', '.json'))
+            annotation_dict = {
+                'class_name': original_query,
+                'bbox': [y_min / height, x_min / width, y_max / height, x_max / width],  # Normalized coordinates
+                'score': 1.0  # Since these are manual annotations
+            }
 
-            with open(annotation_file, 'w') as f:
-                f.write(annotation)
+            annotation_file = os.path.splitext(image_name)[0] + '.json'
+            annotation_path = os.path.join(annotations_path, annotation_file)
+            with open(annotation_path, 'w') as f:
+                json.dump([annotation_dict], f)
 
-        logger.info("Annotations saved, proceeding to scrape similar images")
+        logger.info("Manual annotations saved.")
 
-        # Scrape similar images
-        api_key = os.getenv("GOOGLE_API_KEY")
-        search_engine_id = os.getenv("SEARCH_ENGINE_ID")
-
-        logger.info("Starting to scrape similar images")
-        similar_images = scrape_similar_images(
-            image_urls,
-            original_query,
-            api_key,
-            search_engine_id,
-            num_results_per_image=20,
-            total_images_to_download=50)
-        logger.info(f"Scraped similar images: {similar_images}")
-
-        # Download similar images
-        logger.info("Downloading similar images")
-        download_images(similar_images, "dataset/train/images")
-        logger.info("Similar images downloaded successfully")
-
-        # Auto-annotate the newly fetched images
-        logger.info("Auto-annotating similar images")
-        auto_annotate_images("dataset/train/images", annotations_path)
-        logger.info("Auto-annotation completed successfully")
-
-        # Create the data.yaml file based on the annotations
-        logger.info("Creating data.yaml file")
-        create_data_yaml(annotations_path)
-
-        # Train the YOLO model with the annotated dataset
-        logger.info("Starting model training")
-        data_yaml_path = "dataset/data.yaml"
-        train_model(data_yaml_path)
-        logger.info("Model training completed successfully")
-
-        return "<html><body><h2>Model Training Complete. Your YOLOv8 model is ready!</h2></body></html>"
-
+        # Proceed to training with the manually annotated images
+        return await train_initial_model(original_query)
     except Exception as e:
-        logger.error(f"Error during annotation or model training: {e}")
+        logger.error(f"Error saving annotations: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+async def train_initial_model(original_query):
+    try:
+        logger.info("Starting initial model training with manual annotations.")
+
+        # Create label map
+        class_names = [original_query]
+        label_map_path = 'data/label_map.pbtxt'
+        create_label_map(class_names, label_map_path)
+
+        # Load label map dictionary
+        label_map_dict = load_label_map_dict(label_map_path)
+
+        # Create TFRecord file from manually annotated images
+        tfrecord_path = 'data/train_manual.record'
+        create_tfrecord(images_path, annotations_path, tfrecord_path, label_map_dict)
+
+        # Train the initial model
+        pipeline_config_path = 'models/my_model/pipeline.config'
+        model_dir = 'models/my_model'
+        train_model(pipeline_config_path, model_dir, tfrecord_path)
+
+        # Use the trained model to auto-annotate additional images
+        logger.info("Auto-annotating additional images.")
+        auto_annotate_images(images_path, annotations_path, os.path.join(model_dir, 'saved_model'), label_map_path)
+
+        # Create TFRecord file from the expanded dataset
+        tfrecord_full_path = 'data/train_full.record'
+        create_tfrecord(images_path, annotations_path, tfrecord_full_path, label_map_dict)
+
+        # Retrain the model on the full dataset
+        logger.info("Retraining the model on the full dataset.")
+        train_model(pipeline_config_path, model_dir, tfrecord_full_path)
+
+        # Convert the final model to TensorFlow Lite
+        saved_model_dir = os.path.join(model_dir, 'exported_model', 'saved_model')
+        tflite_output_path = os.path.join(model_dir, 'model.tflite')
+        convert_to_tflite(saved_model_dir, tflite_output_path)
+
+        return "<html><body><h2>Model Training Complete. Your TensorFlow Lite model is ready!</h2></body></html>"
+    except Exception as e:
+        logger.error(f"Error during initial model training: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
