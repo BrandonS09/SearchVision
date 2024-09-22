@@ -18,10 +18,13 @@ images_path = "dataset/train/images"
 labels_path = "dataset/train/labels"
 
 # Clear the directories on startup
+
+
 def clear_directory(path):
     if os.path.exists(path):
         shutil.rmtree(path)  # Remove the directory and its contents
     os.makedirs(path)  # Recreate the directory
+
 
 # Clear the images and labels directories
 clear_directory(images_path)
