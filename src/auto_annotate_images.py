@@ -1,37 +1,55 @@
 from ultralytics import YOLO
 import os
+import json
 
+def auto_annotate_images(image_folder, annotations_folder):
+    # Load the pre-trained YOLOv8 model
+    model = YOLO('yolov8n.pt')
 
-def auto_annotate_images(image_dir, output_dir):
-    """
-    Automatically annotates images using a pre-trained YOLOv8 model.
+    # Loop through images in the specified folder
+    for image_file in os.listdir(image_folder):
+        if image_file.endswith(('.jpg', '.jpeg', '.png')):
+            image_path = os.path.join(image_folder, image_file)
+            
+            # Check if the image can be opened and processed
+            try:
+                results = model(image_path)
+            except Exception as e:
+                print(f"WARNING ⚠️ Unable to process image {image_path}: {e}")
+                continue  # Skip to the next image
 
-    :param image_dir: Directory containing images to annotate.
-    :param output_dir: Directory to save the annotations.
-    """
-    # Load a pre-trained YOLOv8 model for object detection
-    model = YOLO('yolov8n.pt')  # Using the YOLOv8 nano model as an example
-
-    # Ensure the output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Process each image in the directory
-    for image_file in os.listdir(image_dir):
-        image_path = os.path.join(image_dir, image_file)
-
-        # Run the YOLO model on the image to get predictions
-        results = model(image_path)
-
-        # Extract predictions (bounding boxes and labels)
-        with open(os.path.join(output_dir, image_file.replace('.jpg', '.txt')), 'w') as f:
+            # Process the results
             for result in results:
-                for box in result.boxes.data:
-                    class_id = int(box[5])  # Class index
-                    # Box coordinates
-                    x_center, y_center, width, height = box[0:4].tolist()
-                    # Write in YOLO format: <class_id> <x_center> <y_center>
-                    # <width> <height>
-                    f.write(
-                        f"{class_id} {x_center} {y_center} {width} {height}\n")
-                print(
-                    f"Annotated {image_file} with {len(result.boxes)} objects")
+                if result.boxes is not None and result.boxes.xyxy is not None and len(result.boxes) > 0:
+                    boxes = result.boxes.xyxy.cpu().numpy()  # Extract bounding boxes in xyxy format
+                    if len(boxes) == 0:
+                        print(f"No annotations found for {image_file}")
+                        continue
+                    
+                    annotations = []
+                    
+                    # Create the annotation entries
+                    for box in boxes:
+                        if len(box) >= 4:  # Ensure there are at least 4 elements for xyxy
+                            x_min, y_min, x_max, y_max = box[:4]
+                            annotation = {
+                                "x_min": float(x_min),
+                                "y_min": float(y_min),
+                                "x_max": float(x_max),
+                                "y_max": float(y_max),
+                                "confidence": float(box[4]) if len(box) > 4 else None,  # Check if confidence exists
+                                "class_id": int(box[5]) if len(box) > 5 else None     # Check if class_id exists
+                            }
+                            annotations.append(annotation)
+
+                    # Save the annotations as JSON if any exist
+                    if annotations:
+                        annotation_filename = os.path.splitext(image_file)[0] + ".json"
+                        annotation_path = os.path.join(annotations_folder, annotation_filename)
+                        with open(annotation_path, 'w') as f:
+                            json.dump(annotations, f)
+                        print(f"Saved annotations for {image_file} at {annotation_path}")
+                    else:
+                        print(f"No valid annotations found for {image_file}")
+                else:
+                    print(f"No bounding boxes detected for {image_file}")

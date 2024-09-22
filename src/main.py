@@ -11,6 +11,21 @@ from src.search_images import search_images
 from src.search_most_dissimilar_images import select_most_dissimilar_images
 from src.train_model import train_model
 from src.scrape_similar import scrape_similar_images
+import shutil
+
+# Paths to the directories
+images_path = "dataset/train/images"
+labels_path = "dataset/train/labels"
+
+# Clear the directories on startup
+def clear_directory(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)  # Remove the directory and its contents
+    os.makedirs(path)  # Recreate the directory
+
+# Clear the images and labels directories
+clear_directory(images_path)
+clear_directory(labels_path)
 
 load_dotenv()
 
