@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def create_data_yaml(labels_path):
     try:
         classes = set()
@@ -14,12 +15,13 @@ def create_data_yaml(labels_path):
             if file_name.endswith('.json'):
                 with open(os.path.join(labels_path, file_name), 'r') as f:
                     annotation_data = json.load(f)
-                    
+
                     # Ensure annotation_data is correctly loaded
                     if not annotation_data:
-                        logger.warning(f"No data found in {file_name}. Skipping this file.")
+                        logger.warning(
+                            f"No data found in {file_name}. Skipping this file.")
                         continue
-                    
+
                     # Check for expected annotation structure
                     if isinstance(annotation_data, list):
                         for item in annotation_data:
@@ -28,19 +30,22 @@ def create_data_yaml(labels_path):
                     elif isinstance(annotation_data, dict) and 'class' in annotation_data:
                         classes.add(annotation_data['class'])
                     else:
-                        logger.warning(f"Unexpected annotation format in {file_name}. Skipping this file.")
+                        logger.warning(
+                            f"Unexpected annotation format in {file_name}. Skipping this file.")
 
         # Convert set to sorted list to maintain a consistent order
         classes_list = sorted(list(classes))
 
         # Check if classes_list is empty
         if not classes_list:
-            raise ValueError("No classes found in annotations. Please check your annotation files.")
+            raise ValueError(
+                "No classes found in annotations. Please check your annotation files.")
 
         # Prepare the YAML content
         data_yaml = {
             'train': os.path.abspath("dataset/train/images"),
-            'val': os.path.abspath("dataset/train/images"),  # Use the same directory if no separate validation set
+            # Use the same directory if no separate validation set
+            'val': os.path.abspath("dataset/train/images"),
             'nc': len(classes_list),
             'names': classes_list
         }

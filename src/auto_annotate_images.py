@@ -21,11 +21,13 @@ def auto_annotate_images(image_folder, annotations_folder):
 
             # Process the results
             for result in results:
-                if result.boxes is not None and result.boxes.xyxy is not None and len(result.boxes) > 0:
+                if result.boxes is not None and result.boxes.xyxy is not None and len(
+                        result.boxes) > 0:
                     # Extract bounding boxes in xyxy format
                     boxes = result.boxes.xyxy.cpu().numpy()
                     class_ids = result.boxes.cls.cpu().numpy() if result.boxes.cls is not None else []
-                    confidences = result.boxes.conf.cpu().numpy() if result.boxes.conf is not None else []
+                    confidences = result.boxes.conf.cpu().numpy(
+                    ) if result.boxes.conf is not None else []
 
                     if len(boxes) == 0:
                         print(f"No annotations found for {image_file}")
@@ -35,7 +37,8 @@ def auto_annotate_images(image_folder, annotations_folder):
 
                     # Create the annotation entries
                     for idx, box in enumerate(boxes):
-                        if len(box) >= 4:  # Ensure there are at least 4 elements for xyxy
+                        if len(
+                                box) >= 4:  # Ensure there are at least 4 elements for xyxy
                             x_min, y_min, x_max, y_max = box[:4]
                             annotation = {
                                 "x_min": float(x_min),
@@ -51,11 +54,14 @@ def auto_annotate_images(image_folder, annotations_folder):
 
                     # Save the annotations as JSON if any exist
                     if annotations:
-                        annotation_filename = os.path.splitext(image_file)[0] + ".json"
-                        annotation_path = os.path.join(annotations_folder, annotation_filename)
+                        annotation_filename = os.path.splitext(image_file)[
+                            0] + ".json"
+                        annotation_path = os.path.join(
+                            annotations_folder, annotation_filename)
                         with open(annotation_path, 'w') as f:
                             json.dump(annotations, f)
-                        print(f"Saved annotations for {image_file} at {annotation_path}")
+                        print(
+                            f"Saved annotations for {image_file} at {annotation_path}")
                     else:
                         print(f"No valid annotations found for {image_file}")
                 else:

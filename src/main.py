@@ -11,7 +11,8 @@ from src.search_images import search_images
 from src.search_most_dissimilar_images import select_most_dissimilar_images
 from src.train_model import train_model
 from src.scrape_similar import scrape_similar_images
-from src.create_data_yaml import create_data_yaml  # Import your create_data_yaml function
+# Import your create_data_yaml function
+from src.create_data_yaml import create_data_yaml
 import shutil
 
 # Paths to the directories
@@ -19,10 +20,13 @@ images_path = "dataset/train/images"
 labels_path = "dataset/train/labels"
 
 # Clear the directories on startup
+
+
 def clear_directory(path):
     if os.path.exists(path):
         shutil.rmtree(path)  # Remove the directory and its contents
     os.makedirs(path)  # Recreate the directory
+
 
 # Clear the images and labels directories
 clear_directory(images_path)
@@ -52,6 +56,7 @@ os.makedirs(download_path, exist_ok=True)
 # Serve static files (like images) from the "dataset/train/images" directory
 app.mount("/images", StaticFiles(directory=download_path), name="images")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     try:
@@ -70,6 +75,7 @@ async def index():
         logger.error(f"Error generating the index page: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     try:
@@ -81,7 +87,8 @@ async def search(query: str = Form(...)):
         # Filter the 9 most dissimilar images
         selected_images = select_most_dissimilar_images(images, 9)
 
-        # Display the images to the user for selection and pass `original_query`
+        # Display the images to the user for selection and pass
+        # `original_query`
         html_content = f"<html><body><h2>Select the images that contain the object: {query}</h2><form action='/select' method='post'>"
         # Pass original query
         html_content += f"<input type='hidden' name='original_query' value='{original_query}'>"
@@ -92,6 +99,7 @@ async def search(query: str = Form(...)):
     except Exception as e:
         logger.error(f"Error during image search: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @app.post("/select", response_class=HTMLResponse)
 async def select(
@@ -200,6 +208,7 @@ async def select(
         logger.error(f"Error during image selection: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @app.post("/save_annotations", response_class=HTMLResponse)
 async def save_annotations(
         image_urls: list[str] = Form(...),
@@ -212,7 +221,9 @@ async def save_annotations(
 
         for image_url, annotation in zip(image_urls, annotations):
             image_name = os.path.basename(image_url)
-            annotation_file = os.path.join(annotations_path, image_name.replace('.jpg', '.json'))
+            annotation_file = os.path.join(
+                annotations_path, image_name.replace(
+                    '.jpg', '.json'))
 
             with open(annotation_file, 'w') as f:
                 f.write(annotation)
