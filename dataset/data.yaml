@@ -1,0 +1,4 @@
+names: []
+nc: 0
+train: C:\Users\Brandon Shen\Documents\SearchVision\dataset\train\labels
+val: C:\Users\Brandon Shen\Documents\SearchVision\dataset\train\labels
