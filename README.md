@@ -62,6 +62,6 @@ This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) 
 
 ### Contact
 
-If you have any questions or feedback, please open an issue on the repository or contact us at [brandonshen123@gmail.com](mailto:brandonshen123@gmail.com).
+If you have any questions or feedback, please open an issue on the repository or submit it [here](https://feedbackflux.vercel.app/brandonshen123@gmail.com/b/SearchVision)
 
 Thank you for using SearchVision! We hope you enjoy using the app.
