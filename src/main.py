@@ -5,14 +5,14 @@ from fastapi.staticfiles import StaticFiles
 import logging
 from dotenv import load_dotenv
 
-from src.auto_annotate_images import auto_annotate_images
-from src.download_images import download_images
-from src.search_images import search_images
-from src.search_most_dissimilar_images import select_most_dissimilar_images
-from src.train_model import train_model
-from src.scrape_similar import scrape_similar_images
+from auto_annotate_images import auto_annotate_images
+from download_images import download_images
+from search_images import search_images
+from search_most_dissimilar_images import select_most_dissimilar_images
+from train_model import train_model
+from scrape_similar import scrape_similar_images
 # Import your create_data_yaml function
-from src.create_data_yaml import create_data_yaml
+from create_data_yaml import create_data_yaml
 import shutil
 
 # Paths to the directories

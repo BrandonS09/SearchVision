@@ -1,4 +1,4 @@
-from src.search_images import search_images
+from search_images import search_images
 
 
 def scrape_similar_images(
