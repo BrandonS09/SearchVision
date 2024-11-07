@@ -3,7 +3,7 @@ from sklearn.metrics.pairwise import cosine_distances
 from PIL import Image
 from torchvision import models, transforms
 import torch
-from download_images import download_images
+from src.download_images import download_images
 
 # Load a pre-trained model (e.g., ResNet) for feature extraction
 # Updated to use the correct 'weights' parameter
